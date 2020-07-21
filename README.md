@@ -1,27 +1,33 @@
 # Open CDK Guide
 
-## Table of Contents
+# Table of Contents
+
+<!-- toc -->
+
 - [Purpose](#purpose)
-  - [Why This Guide?](#why-this-guide)
-  - [Contributions](#contributions)
-  - [Credits](#credits)
-  - [Legend](#legend)
+  * [Why This Guide?](#why-this-guide)
+  * [Contributions](#contributions)
+  * [Credits](#credits)
+  * [Legend](#legend)
 - [Why CDK?](#why-cdk)
 - [Tips and Best Practices](#tips-and-best-practices)
-  - [Constructs](#constructs)
-  - [Stacks](#stacks)
-  - [Structure](#structure)
-  - [Naming](#naming)
-  - [Tagging](#tagging)
-  - [Config](#config)
-  - [Patterns](#patterns)
-  - [Tools and Libraries](#tools-and-libraries)
-  - [Limitations](#limitations)
-  - [Get Help](#get-help)
-  - [Further Reading](#further-reading)
+  * [Constructs](#constructs)
+  * [Stacks](#stacks)
+  * [Structure](#structure)
+  * [Naming](#naming)
+  * [Tagging](#tagging)
+  * [Config](#config)
+  * [Patterns](#patterns)
+  * [Tools and Libraries](#tools-and-libraries)
+  * [Deployments](#deployments)
+  * [Limitations](#limitations)
+  * [Get Help](#get-help)
+  * [Further Reading](#further-reading)
 - [Legal](#legal)
-  - [Disclaimer](#disclaimer)
-  - [License](#license)
+  * [Disclaimer](#disclaimer)
+  * [License](#license)
+
+<!-- tocstop -->
 
 ---
 # Purpose
@@ -38,11 +44,15 @@ Before using the guide, please read the [license](#license) and [disclaimer](#di
 
 ## Contributions
 
-Trying to keep up with AWS is a [Sisyphean](https://en.wikipedia.org/wiki/Sisyphus) task and this guide is far from complete. If you have something to add, please submit a pull request and help define conventions of the CDK.
+Trying to keep up with AWS is a [Sisyphean](https://en.wikipedia.org/wiki/Sisyphus) task and this guide is far from complete. If you have something to add, please submit a pull request to our [github repo](https://github.com/kevinslin/open-cdk) and help define conventions of the CDK.
 
 ## Credits
 
 This guide was started by [Kevin S Lin](https://kevinslin.com), an early adopter of the CDK. It is heavily inspired in format and layout from the [og-aws guide](https://github.com/open-guides/og-aws).
+
+Below are a list of awesome folks who have helped out on the project:
+- [James Baker](https://github.com/nzspambot)
+- [Forrest C. Shields II](https://github.com/fshields)
 
 ## Legend
 - 🔸 A gotcha, limitation, or quirk
@@ -122,7 +132,7 @@ Before diving into best practices, a question that naturally arises when conside
         - can be an issue if your functions expect concrete construct types as IBucket is not a valid Bucket
     - 🔦 cross service integrations are packaged together into separate packages
         - you will generally find integrations with a `-targets` or `-actions` suffix
-        - see [aws-route53-targets](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-route53-targets.html), [aws-codepipeline-actions](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-codepipeline-actions.html)
+        - see [aws-route53-targets](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-route53-targets-readme.html), [aws-codepipeline-actions](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-codepipeline-actions-readme.html)
     - even though the CDK is now generally available, many of the constructs in the library are not. check the module documentation for status of specific modules (eg. [DocumentDB is still experimental]( https://docs.aws.amazon.com/cdk/api/latest/docs/aws-docdb-readme.html ))
 
 - low level constructs
@@ -188,7 +198,7 @@ const infra = new InfraStack(app, `fooOrg-fooApp-prod`, {...})
 // will have the following name -> fooOrg-fooApp-dev-userImages87437600-kke5zcq506k7
 ```
 - use simple ids for constructs
-    -  stick to pascalCase with no spaces, punctuation or underscores
+    -  stick to camelCase with no spaces, punctuation or underscores
         - every AWS service has different naming restrictions so its best to use a compatible default naming scheme
 - resist temptation to name resources directly
     - cdk/cloudformation will generate a unique name based on the construct `id`
@@ -217,7 +227,7 @@ Tag.add(infra, K.STAGE, V.STAGE.DEV)
         - 🔸to create SSM|secretmanager values, you will still need to bootstrap by using the cli
 -  scope config values by stage
     ```yaml
-    {
+    "context": {
         "dev": {
             "account": 1234567,
             "region": "us-west-2",
@@ -234,7 +244,7 @@ Tag.add(infra, K.STAGE, V.STAGE.DEV)
         scope.node.tryGetContext(stage)[key]
     }
     ```
-- avoid use CloudFormation [parameters](#TDOO)
+- avoid use CloudFormation [parameters](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html)
     - parameters are resolved during deployed time which prevents the CDK from validating values
     - use context variables instead since the values can be validated before deployment
 
@@ -245,7 +255,7 @@ Tag.add(infra, K.STAGE, V.STAGE.DEV)
 
 - 🚧 creating default constructs
     - as a company, you might want to enforce certain defaults and policies when creating constructs
-    - consider using  composition, inheritence and factories. see discussion [here](https://github.com/aws/aws-cdk/issues/3235)
+    - consider using  composition, inheritance and factories. see discussion [here](https://github.com/aws/aws-cdk/issues/3235)
     - factories example: creates s3 bucket with overridable defaults
 ```typescript
 export function createBucket({scope, id, bucketProps = {}, accessLogBucket}: {
@@ -278,8 +288,17 @@ Collection of tools and libraries that make it easier to work with CDK
     - [punchcard](https://github.com/sam-goodwin/punchcard): combine infra and runtime code
 
 - tools
-    - [aws-vault](https://github.com/99designs/aws-vault): A vault for securely storing and accessing AWS credentials in development environments. Supports switching between profiles, MFA acccess, assuming roles and more
-    - [former2](https://former2.com/): tool created by the brillian [Ian Mckay](https://github.com/iann0036) that can generate CDK/cloudformation/terraform from your existing infrastructure
+    - [aws-vault](https://github.com/99designs/aws-vault): A vault for securely storing and accessing AWS credentials in development environments. Supports switching between profiles, MFA access, assuming roles and more
+    - [former2](https://former2.com/): tool created by the brilliant [Ian Mckay](https://github.com/iann0036) that can generate CDK/cloudformation/terraform from your existing infrastructure
+    - [AWSConsoleRecorder](https://github.com/iann0036/AWSConsoleRecorder): tool created by the brilliant [Ian Mckay](https://github.com/iann0036) that can generate CDK/cloudformation/terraform/cli/boto3 (and more) from actions performed on the console.
+
+## Deployments
+- when checking in CR for CDK code, include output of `cdk diff` in the code review
+    - 🔸 CDK diff will exit with error code of 1 if diff is detected. this is [expected behavior](https://github.com/aws/aws-cdk/issues/1440)
+- its a good idea to version control the CloudFormation template in addition to the cdk code
+    - can compare against past templates to get diff since a particular commit
+    - easy to grep cloudformation to preview current state of infra
+- 🚧 deploy CDK changes as part of CI/CD pipeline (same benefits as putting code in a pipeline - eg. reduce manual actions, better monitoring and better IAM isolation)
 
 ## Limitations
 - aws cdk doesn't [support everything](https://github.com/aws/aws-cdk/issues/1656) that `awscli` does specifically
